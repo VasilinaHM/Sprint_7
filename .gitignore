@@ -8,3 +8,4 @@
 /target/surefire-reports/
 /target/test-classes/
 /.allure/
+/.allure/allure-2.15.0/
