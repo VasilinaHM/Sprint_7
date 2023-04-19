@@ -1,23 +1,25 @@
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import org.example.Courier;
 import org.example.CreateCourier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.example.CourierGenerator.randomCourier;
 import static org.example.LoginCourier.credsFrom;
 import static org.hamcrest.Matchers.is;
 
 
 public class CreateCourierTest {
     private int courierId;
-    private Courier courier = new Courier();
-    private CreateCourier createCourier = new CreateCourier("vasa", "12345", "Vasa");
+    private Courier courier;
+    private CreateCourier createCourier;
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru/";
+        createCourier = randomCourier();
+        courier = new Courier();
     }
 
 

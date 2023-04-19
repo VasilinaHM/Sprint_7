@@ -1,30 +1,28 @@
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
-import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
+import org.example.Courier;
+import org.example.CreateCourier;
 import org.junit.Before;
 import org.junit.Test;
-import java.io.File;
-import static io.restassured.RestAssured.given;
+
 import static org.hamcrest.Matchers.is;
 
 public class СreateCourierNoPasswordTest {
+    private Courier courier;
+    private CreateCourier createCourier;
+
     @Before
     public void setUp() {
-        RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru/";
+        courier = new Courier();
     }
+
     @Test
     @DisplayName("Создание курьера без заполнения password")
     @Description("Нельзя создать курьера без заполнения password.Код ответа - 400")
     public void createCourierNoPasswordAndCheck() {
-        File json = new File("src/test/resources/noPassword.json");
-        Response response =
-                given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(json)
-                        .when()
-                        .post("/api/v1/courier");
-        response.then().assertThat().statusCode(400).and().body("message", is("Недостаточно данных для создания учетной записи"));
+        createCourier = new CreateCourier("1234", "", "1234");
+        ValidatableResponse response = courier.create(createCourier);
+        response.assertThat().statusCode(400).body("message", is("Недостаточно данных для создания учетной записи"));
     }
 }

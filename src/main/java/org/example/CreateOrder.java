@@ -4,8 +4,6 @@ import io.qameta.allure.Step;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 
-import java.io.File;
-
 import static io.restassured.RestAssured.given;
 
 public class CreateOrder {
@@ -14,17 +12,19 @@ public class CreateOrder {
     public CreateOrder() {
         RestAssured.baseURI = BASE_URI;
     }
-@Step("Создание заказа POST api/v1/orders")
-    public ValidatableResponse create(File json) {
+
+    @Step("Создание заказа POST api/v1/orders")
+    public ValidatableResponse create(Order order) {
         return given()
                 .header("Content-type", "application/json")
                 .and()
-                .body(json)
+                .body(order)
                 .when()
                 .post("/api/v1/orders")
                 .then();
     }
-@Step("Удаление заказа DELETE")
+
+    @Step("Удаление заказа DELETE")
     public ValidatableResponse delete(int trackOrder) {
         return given()
                 .header("Content-type", "application/json")

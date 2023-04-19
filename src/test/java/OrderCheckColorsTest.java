@@ -1,5 +1,4 @@
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import org.example.CreateOrder;
 import org.junit.After;
@@ -7,51 +6,57 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import java.io.File;
+import org.example.Order;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.is;
 
 @RunWith(Parameterized.class)
 public class OrderCheckColorsTest {
-    String pathForTest;
+    private CreateOrder createOrder;
+    private final String[] color;
+    public OrderCheckColorsTest (String[] color) {
+        this.color = color;}
     private int trackOrder;
     private ValidatableResponse response;
-    private final CreateOrder createOrder = new CreateOrder();
 
 
-    public OrderCheckColorsTest(String pathForTest) {
-        this.pathForTest = pathForTest;
-    }
 
-    @Parameterized.Parameters
-    public static Object[][] data() {
-        return new Object[][]{
-                {"src/test/resources/colorBlack.json"},
-                {"src/test/resources/colorBlackAndGrey.json"},
-                {"src/test/resources/colorGrey.json"},
-                {"src/test/resources/noColor.json"}
+    @Parameterized.Parameters(name="{0}=no color,{1}=GREY,{2}=BLACK,{3}=TWO COLOR")
+    public static Object[][] colorData() {
+        Object[][] objects;
+        objects = new Object[][]{
+                {null},
+                {new String[]{"GREY"}},
+                {new String[]{"BLACK"}},
+                {new String[]{"BLACK","GREY"}}
         };
+        return objects;
     }
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru/";
+        createOrder = new CreateOrder();
     }
 
     @Test
     @DisplayName("Создание 4 заказов с указанием разного цвета самоката")
     public void createOrderWithMultipleColors() {
-        File json = new File(pathForTest);
-        response = createOrder.create(json);
+        Order order = new Order("Катя",
+            "Попова",
+            "Планерная 5",
+            "4",
+            "+7 800 355 35 35",
+            5,
+            "2020-06-06",
+            "Приветственный комментарий",
+            color);
+        ValidatableResponse response = createOrder.create(order);
         response.assertThat().statusCode(201).body("track", notNullValue());
-
+        trackOrder = response.extract().path("track");
     }
-
     @After
     public void tearDown() {
-        trackOrder = response.extract().path("track");
         ValidatableResponse responseDelete = createOrder.delete(trackOrder);
         responseDelete.assertThat().statusCode(200).body("ok", is(true));
     }

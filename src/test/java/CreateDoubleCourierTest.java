@@ -1,6 +1,5 @@
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import org.apache.http.HttpStatus;
 import org.example.Courier;
@@ -9,21 +8,20 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.example.CourierGenerator.randomCourier;
 import static org.example.LoginCourier.credsFrom;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 
 public class CreateDoubleCourierTest {
-    private Courier courier = new Courier();
+    private Courier courier;
     private int courierId;
-    private CreateCourier createCourier = new CreateCourier("vasa", "12345", "Vasa");
+    private CreateCourier createCourier;
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru/";
-        ValidatableResponse response = courier.create(createCourier);
-        assertEquals("Статус код неверный при создании курьера",
-                HttpStatus.SC_CREATED, response.extract().statusCode());
+        createCourier = randomCourier();
+        courier = new Courier();
     }
 
     @Test
@@ -31,6 +29,7 @@ public class CreateDoubleCourierTest {
     @Description("Нельзя создать курьера с повторяющимся логином.Код ответа - 409")
 
     public void createDoubleCourierAndCheck() {
+        courier.create(createCourier);
         ValidatableResponse response = courier.create(createCourier);
         assertEquals("Статус код неверный при попытке создания курьера с повторяющимся логином",
                 HttpStatus.SC_CONFLICT, response.extract().statusCode());

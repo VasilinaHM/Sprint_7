@@ -1,5 +1,4 @@
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import org.example.Courier;
 import org.example.CreateCourier;
@@ -7,26 +6,27 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.example.CourierGenerator.randomCourier;
 import static org.example.LoginCourier.credsFrom;
 import static org.hamcrest.Matchers.is;
 
 public class AuthorizationCourierWithoutLoginTest {
-    private Courier courier = new Courier();
+    private Courier courier;
     private int courierId;
-    private CreateCourier createCourier = new CreateCourier("vasa", "12345", "Vasa");
+    private CreateCourier createCourier;
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru/";
-        ValidatableResponse response = courier.create(createCourier);
-        response.assertThat().statusCode(201).body("ok", is(true));
+        createCourier = randomCourier();
+        courier = new Courier();
+        courier.create(createCourier);
     }
 
     @Test
     @DisplayName("Авторизация курьера без login")
     public void authorizationCourierWithoutLogin() {
-        CreateCourier createCourier = new CreateCourier("", "12345", "Vasa");
-        ValidatableResponse loginResponse = courier.login(credsFrom(createCourier));
+        CreateCourier createCouriers = new CreateCourier("", createCourier.getPassword(), createCourier.getFirstName());
+        ValidatableResponse loginResponse = courier.login(credsFrom(createCouriers));
         loginResponse.assertThat().statusCode(400).body("message", is("Недостаточно данных для входа"));
     }
 
